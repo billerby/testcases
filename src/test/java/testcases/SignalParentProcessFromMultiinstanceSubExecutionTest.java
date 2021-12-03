@@ -1,5 +1,7 @@
 package testcases;
 
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.common.engine.impl.util.CollectionUtil;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RuntimeService;
@@ -14,7 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @FlowableTest
 public class SignalParentProcessFromMultiinstanceSubExecutionTest {
@@ -42,11 +46,36 @@ public class SignalParentProcessFromMultiinstanceSubExecutionTest {
 
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("signal-parent-process-from-multiinstance-sub-execution");
 
-        List<Task> tasks = taskService.createTaskQuery().list();
-        log.info("tasks: {}", tasks);
-        List<Execution> executions = runtimeService.createExecutionQuery().list();
-        log.info("executions: {}", executions);
 
+        List<Execution> executions = runtimeService.createExecutionQuery().list();
+
+        for (Execution execution : executions){
+
+            List<Execution> list = runtimeService.createExecutionQuery().executionId(execution.getId()).list();
+            if (CollectionUtil.isEmpty(list)){
+                continue;
+            }
+            Map<String, Object> variables = runtimeService.getVariables(execution.getId());
+            log.info("variables in execution: {}: {}", execution.getId(), variables);
+            String listValue = (String) variables.get("listValue");
+
+            List<Task> tasks = taskService.createTaskQuery().executionId(execution.getId()).includeProcessVariables().list();
+            for (Task task : tasks){
+                if (StringUtils.equals("two", listValue)){
+                    Map<String, Object> taskVars = new HashMap<>();
+                    taskVars.put("newDate", true);
+                    taskService.complete(task.getId(), taskVars);
+                }
+            }
+        }
+
+        List<Task> tasks = taskService.createTaskQuery().includeProcessVariables().list();
+
+
+
+        log.info("tasks: {} {}", tasks != null? tasks.size() : "", tasks);
+
+        log.info("executions:{} {}",executions != null ? executions.size() : "", executions);
         /*runtimeService.deleteProcessInstance(processInstance.getId(), null);
 
         List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery().list();
