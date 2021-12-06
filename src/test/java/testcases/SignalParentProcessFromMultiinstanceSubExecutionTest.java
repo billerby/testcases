@@ -6,6 +6,7 @@ import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
+import org.flowable.engine.impl.test.AbstractFlowableTestCase;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.engine.test.Deployment;
@@ -16,12 +17,16 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @FlowableTest
-public class SignalParentProcessFromMultiinstanceSubExecutionTest {
+public class SignalParentProcessFromMultiinstanceSubExecutionTest extends AbstractFlowableTestCase {
 
     private Logger log = LoggerFactory.getLogger(SignalParentProcessFromMultiinstanceSubExecutionTest.class);
 
@@ -46,9 +51,11 @@ public class SignalParentProcessFromMultiinstanceSubExecutionTest {
 
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("signal-parent-process-from-multiinstance-sub-execution");
 
-
         List<Execution> executions = runtimeService.createExecutionQuery().list();
-
+        Date measurementDate = new Date();
+        LocalDateTime localDateTime = LocalDateTime.from(measurementDate.toInstant().atZone(ZoneOffset.UTC)).plusDays(15);
+        Date er = new Date(localDateTime.toEpochSecond(ZoneOffset.UTC));
+        Date erik = new Date(measurementDate.getTime() + 6 * 60 * 60 * 1000); // 6 hours later
         for (Execution execution : executions){
 
             List<Execution> list = runtimeService.createExecutionQuery().executionId(execution.getId()).list();

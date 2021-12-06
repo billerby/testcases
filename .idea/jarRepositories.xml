@@ -16,5 +16,15 @@
       <option name="name" value="Central Repository" />
       <option name="url" value="https://diva.teliacompany.net/artifactory/helix-libs" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="helix-snapshots" />
+      <option name="name" value="libs-snapshot" />
+      <option name="url" value="https://diva.teliacompany.net/artifactory/helix-libs" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="helix-releases" />
+      <option name="name" value="libs-release" />
+      <option name="url" value="https://diva.teliacompany.net/artifactory/helix-libs" />
+    </remote-repository>
   </component>
 </project>
